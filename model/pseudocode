@@ -7,10 +7,12 @@ generate synthetic train data to balance classes
 min-max scale x data to (0, 1)
 convert labels to more useful format
 
-train autoencoder on train x set
-convert existing x data into encoded features with ae
+create encoder and autoencoder networks
+fit trainX to itself with autoencoder
+encode features to reduce dimensionality
 
 visualize encoded features with plot
+
 train classifier on encoded features of training set
 
 determine accuracy of predictions with test set

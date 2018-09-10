@@ -8,7 +8,8 @@ from keras.layers import *
 # Hyper-parameters
 trainSplit = 0.9
 aeOuterDim = 30
-aeInnerDim = 10
+aeInnerDim = 20
+aeEpochs = 500
 
 # Creates and returns densely-connected encoder and autoencoder networks
 def createAutoencoder():
@@ -57,3 +58,13 @@ trainY, testY = convertLabels(trainY), convertLabels(testY)
 # Create encoder and autoencoder networks
 encoder, autoencoder = createAutoencoder()
 
+# Fit trainX to itself with autoencoder
+print('\nFitting autoencoder\n')
+autoencoder.fit(trainX, trainX, epochs=aeEpochs, validation_split=0.1, verbose=0)
+
+# Encode features to reduce dimensionality
+trainX = encoder.predict(trainX)
+testX = encoder.predict(testX)
+
+
+# -- Visualization --
