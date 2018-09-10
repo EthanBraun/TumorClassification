@@ -2,8 +2,27 @@ import pandas as pd
 import numpy as np
 from imblearn.over_sampling import ADASYN
 from sklearn.preprocessing import MinMaxScaler
+from keras.models import *
+from keras.layers import *
 
+# Hyper-parameters
 trainSplit = 0.9
+aeOuterDim = 30
+aeInnerDim = 10
+
+# Creates and returns densely-connected encoder and autoencoder networks
+def createAutoencoder():
+	mIn = Input(shape=(aeOuterDim, ))
+	enc = Dense(aeInnerDim, activation='linear')(mIn)
+	mOut = Dense(aeOuterDim, activation='sigmoid')(enc)
+
+	encoder, autoencoder = Model(mIn, enc), Model(mIn, mOut)
+	autoencoder.compile(loss='mse', optimizer='nadam')
+	
+	return encoder, autoencoder
+
+
+# -- Preprocessing --
 
 # Create dataframe from csv
 data = pd.read_csv('../data/data.csv')
@@ -31,3 +50,10 @@ testX = scaler.transform(testX)
 # Convert labels to more useful format
 convertLabels = lambda y: [[1., 0.] if l == 'M' else [0., 1.] for l in y]
 trainY, testY = convertLabels(trainY), convertLabels(testY)
+
+
+# -- Feature Extraction --
+
+# Create encoder and autoencoder networks
+encoder, autoencoder = createAutoencoder()
+
