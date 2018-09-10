@@ -14,7 +14,11 @@ data = data.reindex(np.random.permutation(data.index))
 splitIdx = int(len(data) * trainSplit)
 train, test = data[:splitIdx], data[splitIdx:]
 
+# Split into x and y
+dropCols = ['id', 'diagnosis', 'Unnamed: 32']
+trainY, testY = train.diagnosis, test.diagnosis
+trainX, testX = train.drop(dropCols, axis=1), test.drop(dropCols, axis=1) 
 
+# Generate synthetic train data to balance classes
+trainX, trainY = ADASYN().fit_sample(trainX, trainY)
 
-#y = data.diagnosis
-#x = data.drop(['id', 'diagnosis', 'Unnamed: 32'], axis=1)
