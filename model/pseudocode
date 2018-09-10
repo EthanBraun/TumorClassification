@@ -1,0 +1,14 @@
+create dataframe from csv
+
+shuffle data
+split into train and test sets
+split into x and y
+generate synthetic train data to balance classes
+
+train autoencoder on train x set
+convert existing x data into encoded features with ae
+
+visualize encoded features with plot
+train classifier on encoded features of training set
+
+determine accuracy of predictions with test set
