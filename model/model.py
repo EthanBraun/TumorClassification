@@ -1,14 +1,18 @@
 import pandas as pd
 import numpy as np
+import seaborn as sns
+import xgboost as xgb
 from imblearn.over_sampling import ADASYN
 from sklearn.preprocessing import MinMaxScaler
+from matplotlib import pyplot as plt
 from keras.models import *
 from keras.layers import *
 
 # Hyper-parameters
 trainSplit = 0.9
 aeOuterDim = 30
-aeInnerDim = 20
+aeInnerDim = 15
+#aeInnerDim = 20
 aeEpochs = 500
 
 # Creates and returns densely-connected encoder and autoencoder networks
@@ -68,3 +72,20 @@ testX = encoder.predict(testX)
 
 
 # -- Visualization --
+
+# Create dataframe for visualization
+cols = ['enc_' + str(i) for i in range(aeInnerDim)]
+revertLabels = lambda y: ['M' if l == [1., 0.] else 'B' for l in y]
+xData = pd.DataFrame(trainX, columns=cols)
+yData = pd.DataFrame(revertLabels(trainY), columns=['diagnosis'])
+visData = pd.concat([xData, yData], axis=1)
+visData = pd.melt(visData, id_vars='diagnosis', var_name='features', value_name='value')
+
+# Visualize encoded features with plot 
+sns.set(style='whitegrid')
+ax = sns.violinplot(data=visData, x='features', y='value', hue='diagnosis', split=True)
+plt.show(ax)
+
+
+# -- Model Training --
+

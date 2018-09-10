@@ -11,6 +11,7 @@ create encoder and autoencoder networks
 fit trainX to itself with autoencoder
 encode features to reduce dimensionality
 
+create dataframe for visualization
 visualize encoded features with plot
 
 train classifier on encoded features of training set
