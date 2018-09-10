@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from imblearn.over_sampling import ADASYN
+from sklearn.preprocessing import MinMaxScaler
 
 trainSplit = 0.9
 
@@ -22,3 +23,11 @@ trainX, testX = train.drop(dropCols, axis=1), test.drop(dropCols, axis=1)
 # Generate synthetic train data to balance classes
 trainX, trainY = ADASYN().fit_sample(trainX, trainY)
 
+# Min-max scale x data to (0, 1)
+scaler = MinMaxScaler()
+trainX = scaler.fit_transform(trainX)
+testX = scaler.transform(testX)
+
+# Convert labels to more useful format
+convertLabels = lambda y: [[1., 0.] if l == 'M' else [0., 1.] for l in y]
+trainY, testY = convertLabels(trainY), convertLabels(testY)
