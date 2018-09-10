@@ -11,8 +11,7 @@ from keras.layers import *
 # Hyper-parameters
 trainSplit = 0.9
 aeOuterDim = 30
-aeInnerDim = 15
-#aeInnerDim = 20
+aeInnerDim = 20
 aeEpochs = 500
 
 # Creates and returns densely-connected encoder and autoencoder networks
@@ -53,7 +52,8 @@ trainX = scaler.fit_transform(trainX)
 testX = scaler.transform(testX)
 
 # Convert labels to more useful format
-convertLabels = lambda y: [[1., 0.] if l == 'M' else [0., 1.] for l in y]
+#convertLabels = lambda y: [[1., 0.] if l == 'M' else [0., 1.] for l in y]
+convertLabels = lambda y: [1. if l == 'M' else 0. for l in y]
 trainY, testY = convertLabels(trainY), convertLabels(testY)
 
 
@@ -75,7 +75,8 @@ testX = encoder.predict(testX)
 
 # Create dataframe for visualization
 cols = ['enc_' + str(i) for i in range(aeInnerDim)]
-revertLabels = lambda y: ['M' if l == [1., 0.] else 'B' for l in y]
+#revertLabels = lambda y: ['M' if l == [1., 0.] else 'B' for l in y]
+revertLabels = lambda y: ['M' if l == 1. else 'B' for l in y]
 xData = pd.DataFrame(trainX, columns=cols)
 yData = pd.DataFrame(revertLabels(trainY), columns=['diagnosis'])
 visData = pd.concat([xData, yData], axis=1)
@@ -89,3 +90,19 @@ plt.show(ax)
 
 # -- Model Training --
 
+# Train classifier on encoded features of training set
+xgbParams = {'maxDepth': 2, 'eta': 1, 'silent': 1, 'objective': 'binary:logistic'}
+xgbRounds = 20
+dTrain = xgb.DMatrix(trainX, label=trainY)
+xgbTree = xgb.train(xgbParams, dTrain, xgbRounds) 
+
+
+# -- Model Prediction --
+
+# Determine accuracy of predictions with test set
+dTest = xgb.DMatrix(testX)
+preds = xgbTree.predict(dTest)
+
+intPreds = [int(p + 0.5) for p in preds]
+matchingPreds = [1. if p == y else 0. for p, y in zip(intPreds, testY)]
+print('\nPrediction accuracy: ' + str(sum(matchingPreds) / len(matchingPreds)))
